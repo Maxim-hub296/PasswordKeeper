@@ -3,7 +3,7 @@ from random import choice
 
 
 class GeneratePasswordButton(ft.UserControl):
-    def __init__(self, choose: dict, length, name: str):
+    def __init__(self, choose: dict,  name: str, length=10):
         super().__init__()
         self.choose = choose
         self.length = length
