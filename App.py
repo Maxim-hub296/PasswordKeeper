@@ -15,7 +15,7 @@ class PasswordKeeper(ft.UserControl):
 
         self.name = ft.TextField(label="Введите название пароля", width=200)
         self.length = ft.TextField(label="Введите длину пароля", input_filter=ft.NumbersOnlyInputFilter(), width=200,
-                                    value="10", on_change=self.check_length)
+                                    value="10")
         self.generateButton = GeneratePasswordButton(self.choose, self.name, self.length)
         self.showButton = ShowPasswordButton()
         self.createCodeButton = CreateCodeButton()
@@ -28,10 +28,3 @@ class PasswordKeeper(ft.UserControl):
         return ft.Column(controls=[password_button_row, code_button_row, self.name, self.length, self.checkBox],
                          alignment=ft.alignment.center)
 
-    def check_length(self, e):
-        if self.length.value == '':
-            self.length.value = 1
-        min_length = len([i for i in self.choose.values() if i])
-        if int(self.length.value) < min_length:
-            self.length.value = min_length
-        self.update()

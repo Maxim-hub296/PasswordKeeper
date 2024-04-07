@@ -15,11 +15,7 @@ class GeneratePasswordButton(ft.UserControl):
         return ft.Column(controls=[button])
 
     def alert_error(self):
-        controls = [ft.TextField(), ft.ElevatedButton(text="тест")]
-        content = ft.Column(controls)
-        # dlg = ft.AlertDialog(title=ft.Text("Дурак? Я не могу создать пустой пароль!"))
-        dlg = ft.AlertDialog(title=ft.TextField(),
-                             content=content)
+        dlg = ft.AlertDialog(title=ft.Text("Невозможно создать пустой пароль"))
 
         self.page.dialog = dlg
         dlg.open = True
@@ -27,11 +23,9 @@ class GeneratePasswordButton(ft.UserControl):
 
     def on_click(self, e):
         if not any(self.choose.values()):
-            print('!!!!')
             self.alert_error()
             return
         self.generate_password()
-        print(self)
 
     def generate_password(self):
         length = int(self.length.value)
@@ -55,6 +49,11 @@ class GeneratePasswordButton(ft.UserControl):
 
         with open(file="password.txt", mode="a", encoding="utf-8") as file:
             file.write(f"{self.name.value} - {password}\n")
+
+        dlg = ft.AlertDialog(title=ft.Text("Пароль создан!"))
+        self.page.dialog = dlg
+        dlg.open = True
+        self.page.update()
 
 
 class ShowPasswordButton(ft.UserControl):
