@@ -2,6 +2,8 @@ import flet as ft
 from string import ascii_lowercase, ascii_uppercase, digits, punctuation
 from random import choices, choice, shuffle
 from os import listdir
+from pyperclip import copy
+
 
 class GeneratePasswordButton(ft.UserControl):
     def __init__(self, choose: dict, name: ft.TextField, length: ft.TextField):
@@ -50,7 +52,8 @@ class GeneratePasswordButton(ft.UserControl):
         with open(file="password.txt", mode="a", encoding="utf-8") as file:
             file.write(f"{self.name.value} - {password}\n")
 
-        dlg = ft.AlertDialog(title=ft.Text("Пароль создан!"))
+        dlg = ft.AlertDialog(title=ft.Text(f"Пароль создан!\nПароль - {password}"))
+
         self.page.dialog = dlg
         dlg.open = True
         self.page.update()
@@ -58,12 +61,32 @@ class GeneratePasswordButton(ft.UserControl):
 
 class ShowPasswordButton(ft.UserControl):
     def build(self):
-        button = ft.ElevatedButton(text="Показать пароли", on_click=self.show_password, width=200)
+        button = ft.ElevatedButton(text="Показать пароли", on_click=self.on_click, width=200)
         return ft.Column(controls=[button])
 
-    def show_password(self, e):
-        print(listdir())
+    def on_click(self, e):
+        if "password.txt" not in listdir():
+            dlg = ft.AlertDialog(title=ft.Text(value="У вас еще нет паролей"))
+            self.page.dialog = dlg
+            dlg.open = True
+            self.page.update()
+        else:
+            self.show_password()
 
+    def show_password(self):
+        contents = []
+        with open("password.txt", encoding="utf-8") as f:
+            passwords = [i.strip() for i in f]
+
+        for password in passwords:
+            contents.append(PasswordCopyLine(ft.Text(value=password)))
+
+        dlg = ft.AlertDialog(title=ft.Text(value="Сохраненные пароли:"),
+                             content=ft.Text(value="Посмотрите и скопируйте свои пароли"),
+                             actions=[i for i in contents])
+        self.page.dialog = dlg
+        dlg.open = True
+        self.page.update()
 
 
 class CreateCodeButton(ft.UserControl):
@@ -107,3 +130,25 @@ class SelectSymbols(ft.UserControl):
 
     def on_change(self, e):
         self.choose[e.control.key] = e.control.value
+
+
+class PasswordCopyLine(ft.UserControl):
+    def __init__(self, password: ft.Text):
+        super().__init__()
+        self.password = password.value
+
+    def build(self):
+        return ft.Row(controls=[ft.Text(value=self.password),
+                                ft.ElevatedButton(on_click=self.on_click, text="Скопировать",
+                                                  icon=ft.icons.CONTENT_COPY)])
+
+    def on_click(self, e):
+        dlg = ft.AlertDialog(title=ft.Text("Пароль скопирован"))
+        self.page.dialog = dlg
+        self.copy_password()
+        dlg.open = True
+        self.page.update()
+
+    def copy_password(self):
+        index = self.password.find("- ")
+        copy(self.password[index:])
