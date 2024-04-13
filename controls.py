@@ -1,7 +1,7 @@
 import flet as ft
 from string import ascii_lowercase, ascii_uppercase, digits, punctuation
 from random import choices, choice, shuffle
-
+from os import listdir
 
 class GeneratePasswordButton(ft.UserControl):
     def __init__(self, choose: dict, name: ft.TextField, length: ft.TextField):
@@ -62,7 +62,8 @@ class ShowPasswordButton(ft.UserControl):
         return ft.Column(controls=[button])
 
     def show_password(self, e):
-        pass
+        print(listdir())
+
 
 
 class CreateCodeButton(ft.UserControl):

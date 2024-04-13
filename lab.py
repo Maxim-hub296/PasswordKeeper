@@ -1,32 +1,38 @@
-from string import ascii_lowercase, ascii_uppercase, digits, punctuation
-from random import choice
-
-latin_low = ascii_lowercase
-latin_up = ascii_uppercase
-digits = digits
-kirill_up = ''.join(chr(i) for i in range(ord('А'), ord('Я') + 1))
-kirill_low = ''.join(chr(i) for i in range(ord('а'), ord('я') + 1))
-special = punctuation
-
-choose = {
-          kirill_low: True,
-          kirill_up: False,
-          latin_low: False,
-          latin_up: True,
-          digits: True,
-          special: False
-          }
-
-password = ""
-length = 10
-value = ''
-for i, j in choose.items():
-    if j:
-        value += i
+import flet as ft
+from pyperclip import copy
 
 
+class PasswordCopyLine(ft.UserControl):
+    def __init__(self, password: ft.Text):
+        super().__init__()
+        self.password = password.value
 
-while len(password) != length:
-    password += choice(value)
-print(password)
+    def build(self):
+        return ft.Row(controls=[ft.Text(value=self.password),
+                                ft.ElevatedButton(on_click=self.on_click, text="Скопировать", icon=ft.icons.CONTENT_COPY)])
 
+    def on_click(self, e):
+        dlg = ft.AlertDialog(title=ft.Text("Пароль скопирован"))
+        self.page.dialog = dlg
+        self.copy_password()
+        dlg.open = True
+        self.page.update()
+
+    def copy_password(self):
+        copy(self.password)
+
+
+def main(page: ft.Page):
+    page.title = "PasswordKeeper"
+    page.window_width = 200
+    page.window_height = 200
+    page.window_resizable = False
+
+    page.update()
+
+    app = PasswordCopyLine(ft.Text("Тест"))
+
+    page.add(app)
+
+
+ft.app(target=main)
