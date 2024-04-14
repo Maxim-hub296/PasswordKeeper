@@ -3,6 +3,7 @@ from string import ascii_lowercase, ascii_uppercase, digits, punctuation
 from random import choices, choice, shuffle
 from os import listdir
 from pyperclip import copy
+from pincode import pincode
 
 
 class GeneratePasswordButton(ft.UserControl):
@@ -52,7 +53,7 @@ class GeneratePasswordButton(ft.UserControl):
         with open(file="password.txt", mode="a", encoding="utf-8") as file:
             file.write(f"{self.name.value} - {password}\n")
 
-        dlg = ft.AlertDialog(title=ft.Text(f"Пароль создан!\nПароль - {password}"))
+        dlg = ft.AlertDialog(title=ft.Text(f"Пароль создан!\nПароль - {password}"), actions=[CopyButton(password)])
 
         self.page.dialog = dlg
         dlg.open = True
@@ -91,10 +92,13 @@ class ShowPasswordButton(ft.UserControl):
 
 class CreateCodeButton(ft.UserControl):
     def build(self):
-        button = ft.ElevatedButton(text="Создать PIN", on_click=self.create_code, width=200)
+        button = ft.ElevatedButton(text="Создать PIN", on_click=self.on_click, width=200)
         return ft.Column(controls=[button])
 
-    def create_code(self, e):
+    def on_click(self, e):
+        pass
+
+    def create_pin(self):
         pass
 
 
@@ -152,3 +156,28 @@ class PasswordCopyLine(ft.UserControl):
     def copy_password(self):
         index = self.password.find("- ")
         copy(self.password[index:])
+
+
+class CopyButton(ft.UserControl):
+    def __init__(self, password):
+        super().__init__()
+        self.password = password
+
+    def build(self):
+        return ft.Row(
+            controls=[ft.ElevatedButton(text="Скопировать!", icon=ft.icons.CONTENT_COPY, on_click=self.on_click)])
+
+    def on_click(self, e):
+        copy(self.password)
+
+
+class EnterButton(ft.UserControl):
+    def __init__(self, pin: str):
+        super().__init__()
+        self.pin = pin
+
+    def build(self):
+        return ft.Row(controls=[ft.ElevatedButton(text="Ввести", on_click=self.on_click)])
+
+    def on_click(self, e):
+        pincode = self.pin

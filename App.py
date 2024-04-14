@@ -3,6 +3,7 @@ from controls import *
 
 class PasswordKeeper(ft.UserControl):
     def __init__(self):
+
         super().__init__()
         self.choose = {
             "kirill_low": False,
