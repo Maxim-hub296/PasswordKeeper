@@ -1,9 +1,8 @@
 import flet as ft
-from string import ascii_lowercase, ascii_uppercase, digits, punctuation
 from random import choices, choice, shuffle
 from os import listdir
 from pyperclip import copy
-from pincode import pincode
+from string import ascii_lowercase, ascii_uppercase, digits, punctuation
 
 
 class GeneratePasswordButton(ft.UserControl):
@@ -46,6 +45,7 @@ class GeneratePasswordButton(ft.UserControl):
             if self.choose[symbolsset]:
                 password.append(choice(symbols_dict[symbolsset]))
                 symbols += symbols_dict[symbolsset]
+
         password.extend(choices(symbols, k=length - len(password)))
         shuffle(password)
         password = "".join(password)
@@ -91,15 +91,30 @@ class ShowPasswordButton(ft.UserControl):
 
 
 class CreateCodeButton(ft.UserControl):
+    def __init__(self, pin: str):
+        super().__init__()
+        self.pin = pin
+        self.entry_field = ft.TextField(label="Поле ввода")
+        self.entry_button = ft.ElevatedButton(text="Ввести", on_click=self.create_pin)
+
     def build(self):
         button = ft.ElevatedButton(text="Создать PIN", on_click=self.on_click, width=200)
         return ft.Column(controls=[button])
 
     def on_click(self, e):
-        pass
+        dlg = ft.AlertDialog(title=ft.Text("Создайте PIN-code"),
+                             content=ft.Text("Введите 4 цифры"),
+                             actions=[self.entry_field, self.entry_button])
+        self.page.dialog = dlg
+        dlg.open = True
+        self.page.update()
 
-    def create_pin(self):
-        pass
+        print(self.pin)
+
+    def create_pin(self, e):
+        print(f"до изменения - {self.pin}")
+        self.pin = self.entry_field.value
+        print(f"после изменения - {self.pin}")
 
 
 class DelCodeButton(ft.UserControl):
@@ -169,15 +184,3 @@ class CopyButton(ft.UserControl):
 
     def on_click(self, e):
         copy(self.password)
-
-
-class EnterButton(ft.UserControl):
-    def __init__(self, pin: str):
-        super().__init__()
-        self.pin = pin
-
-    def build(self):
-        return ft.Row(controls=[ft.ElevatedButton(text="Ввести", on_click=self.on_click)])
-
-    def on_click(self, e):
-        pincode = self.pin

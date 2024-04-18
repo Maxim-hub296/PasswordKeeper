@@ -3,8 +3,8 @@ from controls import *
 
 class PasswordKeeper(ft.UserControl):
     def __init__(self):
-
         super().__init__()
+        self.pin = "Тест"
         self.choose = {
             "kirill_low": False,
             "kirill_up": False,
@@ -19,7 +19,7 @@ class PasswordKeeper(ft.UserControl):
                                    value="10")
         self.generateButton = GeneratePasswordButton(self.choose, self.name, self.length)
         self.showButton = ShowPasswordButton()
-        self.createCodeButton = CreateCodeButton()
+        self.createCodeButton = CreateCodeButton(self.pin)
         self.delCodeButton = DelCodeButton()
         self.checkBox = SelectSymbols(self.choose)
 
