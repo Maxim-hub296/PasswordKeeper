@@ -1,3 +1,4 @@
+# Константы
 from string import ascii_lowercase, ascii_uppercase, digits, punctuation
 
 kirill_up = ''.join(chr(i) for i in range(ord('А'), ord('Я') + 1))
