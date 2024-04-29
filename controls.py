@@ -5,7 +5,7 @@ from random import choices, choice, shuffle
 from os import listdir
 from pyperclip import copy
 from string import ascii_lowercase, ascii_uppercase, digits, punctuation
-
+from db import Password
 
 class GeneratePasswordButton(ft.UserControl):
     """
@@ -86,6 +86,10 @@ class GeneratePasswordButton(ft.UserControl):
         shuffle(password)  # Перемешиваем
         password = "".join(password)  # Делаем пароль строкой
 
+
+        self.save_password(password, self.name.value)
+
+
         # Создаем и/или открываем файл для записи(добавления)
         with open(file="password.txt", mode="a", encoding="utf-8") as file:
             file.write(f"{self.name.value} - {password}\n")  # Делаем красивую запись в файл. Имя - пароль
@@ -96,6 +100,9 @@ class GeneratePasswordButton(ft.UserControl):
         self.page.dialog = dlg
         dlg.open = True
         self.page.update()
+
+    def save_password(self, password, name):
+        Password.create(name=name, password=password)
 
 
 class ShowPasswordButton(ft.UserControl):
@@ -118,7 +125,8 @@ class ShowPasswordButton(ft.UserControl):
         :return:
         """
         # Проверяем, есть ли у пользователя пароли
-        if "password.txt" not in listdir():
+
+        if "passwords.db" not in listdir():
             # Если нет - вызываем диалог с ошибкой
             dlg = ft.AlertDialog(title=ft.Text(value="У вас еще нет паролей"))
             self.page.dialog = dlg
@@ -134,9 +142,7 @@ class ShowPasswordButton(ft.UserControl):
         :return:
         """
         contents = []  # Созадаем список, куда кладем пароли
-
-        with open("password.txt", encoding="utf-8") as f:  # Открываем файл для чтения
-            passwords = [i.strip() for i in f]  # Форматируем строки с паролем
+        passwords = [f'{password.name} - {password.password}' for password in Password.select()]
 
         for password in passwords:
             # Заполняем окно с паролями

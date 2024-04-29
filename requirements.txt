@@ -1,2 +1,4 @@
 flet==0.22.0
 pyperclip==1.8.2
+
+peewee~=3.17.3

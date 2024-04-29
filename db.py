@@ -1,43 +1,23 @@
 # Класс для работы с базой данных
-import sqlite3 as sql
+from peewee import *
+
+db = SqliteDatabase('passwords.db', pragmas={'key': 'password'})
 
 
-class DbUser:
-    """
-    Класс для работы с базой данных
-    """
 
-    def __init__(self, db):
-        """
-        :param db: база данных, с которой нужно работать
-        """
-        self.con = sql.connect(db)  # Подключаемся/создаем базу данных
-        self.cursor = self.con.cursor()  # Не знаю, как это описать. Нужно, чтобы выполнять SQL-запросы
-
-    def correct_pin(self, pin: str):
-        """
-
-        :param pin: введенный пин-код
-        :return:
-        """
-        self.cursor.execute("SELECT * FROM pincode")  # Вызываем значения из таблицы
-        # Проверка на пин-код
-        if pin == self.cursor.fetchone()[0]:
-            print("Вы авторизованы!")
-        else:
-            print("Пароль неверный")
-
-    def print_passwords(self):
-        """
-        Метод вывода пароля
-        :return:
-        """
-        self.cursor.execute("SELECT * FROM passwords")
-
-        for name, password in self.cursor.fetchall():
-            print(f"{name} - {password}")
+class BaseModel(Model):
+    class Meta:
+        database = db
 
 
-# Тесты. Не обращать внимания
-test = DbUser("passwords.db")
-test.print_passwords()
+
+class Password(BaseModel):
+    name = CharField()
+    password = CharField()
+
+
+def create_db():
+    db.create_tables([Password])
+
+
+create_db()
