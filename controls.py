@@ -5,14 +5,15 @@ from random import choices, choice, shuffle
 from os import listdir
 from pyperclip import copy
 from string import ascii_lowercase, ascii_uppercase, digits, punctuation
-from db import Password
+from func import *
+
 
 class GeneratePasswordButton(ft.UserControl):
     """
     Это класс кнопки "Сгенерировать пароль"
     """
 
-    def __init__(self, choose: dict, name: ft.TextField, length: ft.TextField):
+    def __init__(self, choose: dict, name: ft.TextField, length: ft.TextField, ):
         """
 
         :param choose: словарь на основе выбора пользователя символов
@@ -23,6 +24,8 @@ class GeneratePasswordButton(ft.UserControl):
         self.choose = choose
         self.length = length
         self.name = name
+        self.user = None
+        self.user_password = None
 
     def build(self):
         """
@@ -86,9 +89,7 @@ class GeneratePasswordButton(ft.UserControl):
         shuffle(password)  # Перемешиваем
         password = "".join(password)  # Делаем пароль строкой
 
-
         self.save_password(password, self.name.value)
-
 
         # Создаем и/или открываем файл для записи(добавления)
         with open(file="password.txt", mode="a", encoding="utf-8") as file:
@@ -102,13 +103,21 @@ class GeneratePasswordButton(ft.UserControl):
         self.page.update()
 
     def save_password(self, password, name):
-        Password.create(name=name, password=password)
+        data = read_toml_file()
+        data["passwords"][self.user][name] = Crypto.encrypt(password, self.user_password)
+        write_toml_file(data)
 
 
 class ShowPasswordButton(ft.UserControl):
     """
      Класс кнопки "Показать пароли"
+
     """
+
+    def __init__(self):
+        super().__init__()
+        self.user = None
+        self.user_password = None
 
     def build(self):
         """
@@ -142,11 +151,12 @@ class ShowPasswordButton(ft.UserControl):
         :return:
         """
         contents = []  # Созадаем список, куда кладем пароли
-        passwords = [f'{password.name} - {password.password}' for password in Password.select()]
+        passwords = read_toml_file()['passwords'][self.user]
+        print(passwords)
 
-        for password in passwords:
+        for name, password in passwords.items():
             # Заполняем окно с паролями
-            contents.append(PasswordCopyLine(ft.Text(value=password)))
+            contents.append(PasswordCopyLine(ft.Text(value=f"{name} - {Crypto.decrypt(password, self.user_password)}")))
 
         # Создаем диалог
         dlg = ft.AlertDialog(title=ft.Text(value="Сохраненные пароли:"),
@@ -157,46 +167,13 @@ class ShowPasswordButton(ft.UserControl):
         self.page.update()
 
 
-class CreateCodeButton(ft.UserControl):
-    def __init__(self, pin: str):
-        super().__init__()
-        self.pin = pin
-        self.entry_field = ft.TextField(label="Поле ввода")
-        self.entry_button = ft.ElevatedButton(text="Ввести", on_click=self.create_pin)
-
-    def build(self):
-        button = ft.ElevatedButton(text="Создать PIN", on_click=self.on_click, width=200)
-        return ft.Column(controls=[button])
-
-    def on_click(self, e):
-        dlg = ft.AlertDialog(title=ft.Text("Создайте PIN-code"),
-                             content=ft.Text("Введите 4 цифры"),
-                             actions=[self.entry_field, self.entry_button])
-        self.page.dialog = dlg
-        dlg.open = True
-        self.page.update()
-
-        print(self.pin)
-
-    def create_pin(self, e):
-        print(f"до изменения - {self.pin}")
-        self.pin = self.entry_field.value
-        print(f"после изменения - {self.pin}")
-
-
-class DelCodeButton(ft.UserControl):
-    def build(self):
-        button = ft.ElevatedButton(text="Удалить PIN", on_click=self.del_code, width=200)
-        return ft.Column(controls=[button])
-
-    def del_code(self, e):
-        pass
 
 
 class SelectSymbols(ft.UserControl):
     """
     Класс поля выбора символов
     """
+
     def __init__(self, choose: dict):
         """
 
@@ -238,6 +215,7 @@ class PasswordCopyLine(ft.UserControl):
     """
     Поле копирование. Используется в ShowPasswordButton
     """
+
     def __init__(self, password: ft.Text):
         """
         :param password: получает пароль из списка (В ShowPasswordButton)
@@ -272,14 +250,15 @@ class PasswordCopyLine(ft.UserControl):
         Метод копирования пароля
         :return:
         """
-        index = self.password.find("- ")
-        copy(self.password[index:])
+        password = self.password.split(' - ')[1]
+        copy(password)
 
 
 class CopyButton(ft.UserControl):
     """
     То же самое, что прошлый класс, но только кнопка
     """
+
     def __init__(self, password):
         super().__init__()
         self.password = password
@@ -290,3 +269,78 @@ class CopyButton(ft.UserControl):
 
     def on_click(self, e):
         copy(self.password)
+
+
+class Autentificator(ft.UserControl):
+    def __init__(self, main_frame):
+        super().__init__()
+        # self.toml_data = read_toml_file()
+        self.main_frame = main_frame
+        self.login = ft.TextField(label="Логин", width=150)
+        self.password = ft.TextField(label="Пароль", width=150, password=True, can_reveal_password=True)
+        self.login_button = ft.ElevatedButton(text="Войти", on_click=self.on_click_login)
+        self.register_button = ft.ElevatedButton(text="Зарегистрироваться!", on_click=self.on_click_register)
+
+    def build(self):
+        login_and_password_row = ft.Row(controls=[self.login, self.password])
+        buttons_row = ft.Row(controls=[self.login_button, self.register_button])
+        return ft.Column(controls=[login_and_password_row, buttons_row])
+
+    def on_click_login(self, e):
+        self.toml_data = read_toml_file()
+        dlg_success = ft.AlertDialog(title=ft.Text("Авторизация прошла успешно"))
+        dlg_no_user = ft.AlertDialog(title=ft.Text("Пользователь с таким именем не обнаружен"))
+        dlg_wrong_password = ft.AlertDialog(title=ft.Text("Неверный пароль"))
+        user = self.login.value.lower()
+        password = self.password.value
+
+        if user not in self.toml_data['users']:
+            dialog = dlg_no_user
+
+        elif not Hasher.verify_password(password, self.toml_data["users"][user]):
+            dialog = dlg_wrong_password
+
+        else:
+            dialog = dlg_success
+            self.main_frame.visible = True
+            self.visible = False
+            self.update()
+            self.main_frame.update()
+            self.main_frame.plane_password = password
+            self.main_frame.user = user
+            self.main_frame.generateButton.user = user
+            self.main_frame.showButton.user = user
+            self.main_frame.generateButton.user_password = password
+            self.main_frame.showButton.user_password = password
+
+        self.page.dialog = dialog
+        dialog.open = True
+
+
+
+        self.page.update()
+
+
+    def on_click_register(self, e):
+
+        self.new_login = ft.TextField(label="Введите логин")
+        self.new_password = ft.TextField(label="Введите пароль")
+        contents = [self.new_login, ft.Text(" "),self.new_password,
+                    ft.ElevatedButton("Зарегистрироваться!", on_click=self.register)]
+        self.dlg = ft.AlertDialog(title=ft.Text("Регистрация"),
+                             actions=[i for i in contents])
+
+        self.page.dialog = self.dlg
+        self.dlg.open = True
+        self.page.update()
+
+    def register(self, e):
+        data = read_toml_file()
+        data["users"][self.new_login.value.lower()] = Hasher.get_password_hash(self.new_password.value)
+        data["passwords"][self.new_login.value] = {}
+        write_toml_file(data)
+        self.dlg.open = False
+        self.page.update()
+
+
+

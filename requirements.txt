@@ -1,4 +1,7 @@
 flet==0.22.0
 pyperclip==1.8.2
 
-peewee~=3.17.3
+bcrypt==4.0.1
+passlib[bcrypt]~=1.7.4
+toml~=0.10.2
+cryptography~=42.0.7

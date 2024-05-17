@@ -1,8 +1,11 @@
 # Файл с запуском программы
 import flet as ft
 from App import PasswordKeeper
+import os
+from func import create_toml_file
 
-
+if 'password_db.toml' not in os.listdir():
+    create_toml_file()
 def main(page: ft.Page):
     """
 
@@ -17,6 +20,7 @@ def main(page: ft.Page):
     page.update()  # Что-то служебное (читать документацию flet)
 
     app = PasswordKeeper()  # Экземпляр класса нашего приложения
+    page.update()
 
     page.add(app)  # Добавляем класс на страницу. Что-то служебное (читать документацию flet)
 

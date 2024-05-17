@@ -1,17 +1,36 @@
 # Класс всего приложения
 from controls import *
 
-
 class PasswordKeeper(ft.UserControl):
-    """
-    Класс всего приложения
-    """
     def __init__(self):
         """
         Инициализируем все, что нужно
         """
         super().__init__()
-        self.pin = "Тест"
+        self.main_frame = MainFrame()
+        self.authentification_frame = Autentificator(self.main_frame)
+
+    def build(self):
+        """
+        Служебный метод (читать документацию flet)
+        :return:
+        """
+
+        return ft.Column(controls=[self.authentification_frame, self.main_frame])
+
+
+class MainFrame(ft.UserControl):
+    """
+    Класс всего приложения
+    """
+
+    def __init__(self):
+        """
+        Инициализируем все, что нужно
+        """
+        super().__init__()
+        self.visible = False
+        self.user = None
         # Словарь с выбором
         self.choose = {
             "kirill_low": False,
@@ -30,8 +49,6 @@ class PasswordKeeper(ft.UserControl):
         # Генерируем классы из controls.py
         self.generateButton = GeneratePasswordButton(self.choose, self.name, self.length)
         self.showButton = ShowPasswordButton()
-        self.createCodeButton = CreateCodeButton(self.pin)
-        self.delCodeButton = DelCodeButton()
         self.checkBox = SelectSymbols(self.choose)
 
     def build(self):
@@ -40,6 +57,5 @@ class PasswordKeeper(ft.UserControl):
         :return:
         """
         password_button_row = ft.Row(controls=[self.generateButton, self.showButton], alignment=ft.alignment.center)
-        code_button_row = ft.Row(controls=[self.createCodeButton, self.delCodeButton], alignment=ft.alignment.center)
-        return ft.Column(controls=[password_button_row, code_button_row, self.name, self.length, self.checkBox],
+        return ft.Column(controls=[password_button_row, self.name, self.length, self.checkBox],
                          alignment=ft.alignment.center)
