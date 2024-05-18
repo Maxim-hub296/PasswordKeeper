@@ -84,4 +84,3 @@ class Crypto:
         return byte_string
 
 
-print(Hasher.get_password_hash('123'))

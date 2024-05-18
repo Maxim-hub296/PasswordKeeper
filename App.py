@@ -1,5 +1,7 @@
 # Класс всего приложения
 from controls import *
+from buttons import *
+
 
 class PasswordKeeper(ft.UserControl):
     def __init__(self):
