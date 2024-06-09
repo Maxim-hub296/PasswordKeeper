@@ -10,7 +10,7 @@ class PasswordKeeper(ft.UserControl):
         """
         super().__init__()
         self.main_frame = MainFrame()
-        self.authentification_frame = Autentificator(self.main_frame)
+        self.authentification_frame = Authenticator(self.main_frame)
 
     def build(self):
         """
@@ -44,14 +44,16 @@ class MainFrame(ft.UserControl):
         }
 
         # Поле для ввода названия пароля
-        self.name = ft.TextField(label="Введите название пароля", width=200)
+        self.name = ft.TextField(label="Введите название пароля", width=440)
+        self.password = ft.TextField(label="Введите пароль", width=300)
         # Поле для ввода длины пароля
-        self.length = ft.TextField(label="Введите длину пароля", input_filter=ft.NumbersOnlyInputFilter(), width=200,
+        self.length = ft.TextField(label="Введите длину пароля", input_filter=ft.NumbersOnlyInputFilter(), width=440,
                                    value="10")
-        # Генерируем классы из controls.py
-        self.generateButton = GeneratePasswordButton(self.choose, self.name, self.length)
+        # Генерируем классы из controls.py и buttons.py
+        self.generateButton = GeneratePasswordButton(self.choose, self.name, self.length, self.password)
         self.showButton = ShowPasswordButton()
         self.checkBox = SelectSymbols(self.choose)
+        self.save_button = SaveButton(self.password, self.name)
 
     def build(self):
         """
@@ -59,5 +61,7 @@ class MainFrame(ft.UserControl):
         :return:
         """
         password_button_row = ft.Row(controls=[self.generateButton, self.showButton], alignment=ft.alignment.center)
-        return ft.Column(controls=[password_button_row, self.name, self.length, self.checkBox],
-                         alignment=ft.alignment.center)
+        password_and_save_button_row = ft.Row(controls=[self.password, self.save_button])
+        return ft.Column(
+            controls=[password_button_row, self.name, password_and_save_button_row, self.length, self.checkBox],
+            alignment=ft.alignment.center)

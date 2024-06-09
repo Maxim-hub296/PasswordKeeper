@@ -6,13 +6,12 @@ from func import *
 from pyperclip import copy
 from controls import PasswordCopyLine
 
-
 class GeneratePasswordButton(ft.UserControl):
     """
     Это класс кнопки "Сгенерировать пароль"
     """
 
-    def __init__(self, choose: dict, name: ft.TextField, length: ft.TextField, ):
+    def __init__(self, choose: dict, name: ft.TextField, length: ft.TextField, password_place: ft.TextField):
         """
 
         :param choose: словарь на основе выбора пользователя символов
@@ -25,6 +24,7 @@ class GeneratePasswordButton(ft.UserControl):
         self.name = name
         self.user = None
         self.user_password = None
+        self.password_place = password_place
 
     def build(self):
         """
@@ -90,21 +90,17 @@ class GeneratePasswordButton(ft.UserControl):
 
         self.save_password(password, self.name.value)
 
-        # Создаем и/или открываем файл для записи(добавления)
-        with open(file="password.txt", mode="a", encoding="utf-8") as file:
-            file.write(f"{self.name.value} - {password}\n")  # Делаем красивую запись в файл. Имя - пароль
+        self.password_place.value = password
+        self.password_place.update()
 
-        # Уведомляем, что пароль создан и предлагаем скопировать
-        dlg = ft.AlertDialog(title=ft.Text(f"Пароль создан!\nПароль - {password}"), actions=[CopyButton(password)])
 
-        self.page.dialog = dlg
-        dlg.open = True
-        self.page.update()
 
     def save_password(self, password, name):
         data = read_toml_file()
+        print(Crypto.encrypt(password, self.user_password))
         data["passwords"][self.user][name] = Crypto.encrypt(password, self.user_password)
         write_toml_file(data)
+        print(data["passwords"][self.user][name])
 
 
 class ShowPasswordButton(ft.UserControl):
@@ -151,11 +147,15 @@ class ShowPasswordButton(ft.UserControl):
         """
         contents = []  # Созадаем список, куда кладем пароли
         passwords = read_toml_file()['passwords'][self.user]
-        print(passwords)
+        print(self.user)
+        print(self.user_password)
+        print(Crypto.decrypt(passwords["test"], self.user_password))
 
         for name, password in passwords.items():
             # Заполняем окно с паролями
+            print(Crypto.decrypt(password, self.user_password))
             contents.append(PasswordCopyLine(ft.Text(value=f"{name} - {Crypto.decrypt(password, self.user_password)}")))
+        print(contents)
 
         # Создаем диалог
         dlg = ft.AlertDialog(title=ft.Text(value="Сохраненные пароли:"),
@@ -187,3 +187,24 @@ class CopyButton(ft.UserControl):
 
     def on_click(self, e):
         copy(self.password)
+
+
+class SaveButton(ft.UserControl):
+    def __init__(self, password_place: ft.TextField, name: ft.TextField):
+        super().__init__()
+        self.password = password_place.value
+        self.name = name
+        self.user = None
+        self.user_password = None
+
+    def build(self):
+        button = ft.ElevatedButton(text="Сохранить", width=143, on_click=self.on_click)
+
+        return ft.Column(controls=[button])
+
+    def on_click(self, e):
+        data = read_toml_file()
+        print(Crypto.encrypt(self.password, self.user_password))
+        data["passwords"][self.user][self.name.value] = Crypto.encrypt(self.password, self.user_password)
+
+        write_toml_file(data)

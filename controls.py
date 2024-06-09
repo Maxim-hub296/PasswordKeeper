@@ -4,7 +4,6 @@ from func import *
 from pyperclip import copy
 from dialogs import RegisterDialog
 
-
 class SelectSymbols(ft.UserControl):
     """
     Класс поля выбора символов
@@ -90,7 +89,7 @@ class PasswordCopyLine(ft.UserControl):
         copy(password)
 
 
-class Autentificator(ft.UserControl):
+class Authenticator(ft.UserControl):
     def __init__(self, main_frame):
         super().__init__()
         self.main_frame = main_frame
@@ -130,6 +129,10 @@ class Autentificator(ft.UserControl):
             self.main_frame.showButton.user = user
             self.main_frame.generateButton.user_password = password
             self.main_frame.showButton.user_password = password
+            self.main_frame.save_button.user = user
+            self.main_frame.save_button.user_password = password
+
+
 
         self.page.dialog = dialog
         dialog.open = True

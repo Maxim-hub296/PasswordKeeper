@@ -11,10 +11,10 @@ class RegisterDialog:
         self.data = read_toml_file()
 
     def create(self):
-        button = ft.ElevatedButton(text="Зарегестрироваться!", on_click=self.on_click)
+        button = ft.ElevatedButton(text="Зарегистрироваться!", on_click=self.on_click)
         contents = [self.login, ft.Text(" "), self.password, button]
 
-        title = ft.Text("Регистрицаия")
+        title = ft.Text("Регистрация")
         self.dlg = ft.AlertDialog(title=title,
                                   actions=[content for content in contents])
 

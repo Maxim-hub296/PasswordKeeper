@@ -13,8 +13,8 @@ def main(page: ft.Page):
     :return:
     """
     page.title = "PasswordKeeper"  # Название окно
-    page.window_width = 443  # Длинна окна
-    page.window_height = 530  # Ширина окна
+    page.window_width = 480  # Длинна окна
+    page.window_height = 550  # Ширина окна
     page.window_resizable = False  # Запрещаем изменять размер
 
     page.update()  # Что-то служебное (читать документацию flet)
