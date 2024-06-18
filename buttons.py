@@ -201,8 +201,21 @@ class SaveButton(ft.UserControl):
         encrypt_password = Crypto.encrypt(self.password_place.value, self.user_password)
         # print(encrypt_password)
         data["passwords"][self.user][self.name.value] = encrypt_password
-
         write_toml_file(data)
+
+        self.dialog()
+
+        self.password_place.value = ""
+        self.password_place.update()
+
+    def dialog(self):
+        dlg = ft.AlertDialog(title=ft.Text("Пароль успешно сохранен!"),
+                             content=ft.Text("Не желаете скопировать пароль?"),
+                             actions=[PasswordCopyLine(ft.Text(f"{self.name.value} - {self.password_place.value}"))])
+        self.page.dialog = dlg
+        dlg.open = True
+        self.page.update()
+
 
 
 class ShowParameters(ft.UserControl):
