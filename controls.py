@@ -4,6 +4,7 @@ from func import *
 from pyperclip import copy
 from dialogs import RegisterDialog
 
+
 class SelectSymbols(ft.UserControl):
     """
     Класс поля выбора символов
@@ -93,51 +94,57 @@ class Authenticator(ft.UserControl):
     def __init__(self, main_frame):
         super().__init__()
         self.main_frame = main_frame
-        self.login = ft.TextField(label="Логин", width=150)
-        self.password = ft.TextField(label="Пароль", width=150, password=True, can_reveal_password=True)
-        self.login_button = ft.ElevatedButton(text="Войти", on_click=self.on_click_login)
-        self.register_button = ft.ElevatedButton(text="Зарегистрироваться!", on_click=self.on_click_register)
+        # диалоги
+        self.dlg_success = ft.AlertDialog(title=ft.Text("Авторизация прошла успешно!"))
+        self.dlg_no_user = ft.AlertDialog(title=ft.Text("Пользователь с таким именем не обнаружен"))
+        self.dlg_wrong_password = ft.AlertDialog(title=ft.Text("Неверный пароль"))
+
+        self.login = ft.TextField(label="Логин", width=242)
+        self.password = ft.TextField(label="Пароль", width=200, password=True, can_reveal_password=True)
+        self.login_button = ft.ElevatedButton(text="Войти", on_click=self.on_click_login, width=242)
+        self.register_button = ft.ElevatedButton(text="Зарегистрироваться!", on_click=self.on_click_register, width=200)
+        self.hello_word = ft.Text(value="Вас приветствует программа PasswordKeeper! Мы надежно храним ваши пароли!"
+                                        "Пожалуйста, авторизуйтесь или зарегистрируйтесь")
 
     def build(self):
         login_and_password_row = ft.Row(controls=[self.login, self.password])
         buttons_row = ft.Row(controls=[self.login_button, self.register_button])
-        return ft.Column(controls=[login_and_password_row, buttons_row])
+        return ft.Column(controls=[login_and_password_row, buttons_row, self.hello_word])
 
     def on_click_login(self, e):
         toml_data = read_toml_file()
-        dlg_success = ft.AlertDialog(title=ft.Text("Авторизация прошла успешно!"))
-        dlg_no_user = ft.AlertDialog(title=ft.Text("Пользователь с таким именем не обнаружен"))
-        dlg_wrong_password = ft.AlertDialog(title=ft.Text("Неверный пароль"))
+
         user = self.login.value.lower()
         password = self.password.value
 
         if user not in toml_data['users']:
-            dialog = dlg_no_user
+            dialog = self.dlg_no_user
 
         elif not Hasher.verify_password(password, toml_data["users"][user]):
-            dialog = dlg_wrong_password
+            dialog = self.dlg_wrong_password
 
         else:
-            dialog = dlg_success
-            self.main_frame.visible = True
-            self.visible = False
-            self.update()
-            self.main_frame.update()
-            self.main_frame.plane_password = password
-            self.main_frame.user = user
-            self.main_frame.generateButton.user = user
-            self.main_frame.showButton.user = user
-            self.main_frame.generateButton.user_password = password
-            self.main_frame.showButton.user_password = password
-            self.main_frame.save_button.user = user
-            self.main_frame.save_button.user_password = password
-
-
+            dialog = self.dlg_success
+            self.setup_main_frame(password, user)
 
         self.page.dialog = dialog
         dialog.open = True
 
         self.page.update()
+
+    def setup_main_frame(self, password, user):
+        self.main_frame.visible = True
+        self.visible = False
+        self.update()
+        self.main_frame.update()
+        self.main_frame.plane_password = password
+        self.main_frame.user = user
+        self.main_frame.generateButton.user = user
+        self.main_frame.showButton.user = user
+        self.main_frame.generateButton.user_password = password
+        self.main_frame.showButton.user_password = password
+        self.main_frame.save_button.user = user
+        self.main_frame.save_button.user_password = password
 
     def on_click_register(self, e):
 

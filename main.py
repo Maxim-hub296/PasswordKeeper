@@ -6,6 +6,8 @@ from func import create_toml_file
 
 if 'password_db.toml' not in os.listdir():
     create_toml_file()
+
+
 def main(page: ft.Page):
     """
 
@@ -13,8 +15,8 @@ def main(page: ft.Page):
     :return:
     """
     page.title = "PasswordKeeper"  # Название окно
-    page.window_width = 480  # Длинна окна
-    page.window_height = 550  # Ширина окна
+    page.window_width = 500  # Длинна окна
+    page.window_height = 620  # Ширина окна
     page.window_resizable = False  # Запрещаем изменять размер
 
     page.update()  # Что-то служебное (читать документацию flet)

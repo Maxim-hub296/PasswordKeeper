@@ -53,15 +53,19 @@ class MainFrame(ft.UserControl):
         self.generateButton = GeneratePasswordButton(self.choose, self.name, self.length, self.password)
         self.showButton = ShowPasswordButton()
         self.checkBox = SelectSymbols(self.choose)
+        self.checkBox.visible = False
         self.save_button = SaveButton(self.password, self.name)
+        self.show_parameters_button = ShowParameters(self.checkBox)
 
     def build(self):
         """
         Служебный метод (читать документацию flet)
         :return:
         """
-        password_button_row = ft.Row(controls=[self.generateButton, self.showButton], alignment=ft.alignment.center)
-        password_and_save_button_row = ft.Row(controls=[self.password, self.save_button])
+        password_button_row = ft.Row(controls=[self.showButton], alignment=ft.alignment.center)
+        password_and_save_button_row = ft.Row(
+            controls=[self.password, ft.Column(controls=[self.generateButton, self.save_button])])
         return ft.Column(
-            controls=[password_button_row, self.name, password_and_save_button_row, self.length, self.checkBox],
+            controls=[password_button_row, self.name, password_and_save_button_row, self.length,
+                      self.show_parameters_button, self.checkBox],
             alignment=ft.alignment.center)

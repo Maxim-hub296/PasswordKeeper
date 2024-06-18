@@ -4,8 +4,8 @@ from passlib.context import CryptContext
 from cryptography.fernet import Fernet
 import base64
 
-def create_toml_file():
 
+def create_toml_file():
     data = {
         "users": {
         },
@@ -40,6 +40,7 @@ class Hasher:
     @staticmethod
     def get_password_hash(password):
         return pwd_context.hash(password)
+
 
 class Crypto:
 
@@ -84,3 +85,7 @@ class Crypto:
         return byte_string
 
 
+encrypt_pass = 'gAAAAABmcUthEcdUJNshonwtpWKvYkLwpdau1JL22oQQqh9HPpG5vZYtz76jBLgNl2PM9BbRKD62zn-M0ShGWIRon_LjI8fUEw=='
+user_password = '1'
+
+print(Crypto.decrypt(encrypt_pass, user_password))

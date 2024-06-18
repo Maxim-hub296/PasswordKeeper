@@ -6,6 +6,7 @@ from func import *
 from pyperclip import copy
 from controls import PasswordCopyLine
 
+
 class GeneratePasswordButton(ft.UserControl):
     """
     Это класс кнопки "Сгенерировать пароль"
@@ -31,7 +32,7 @@ class GeneratePasswordButton(ft.UserControl):
         Это служебный метод библиотеки flet (читать документацию flet)
         :return: создает в окне приложения колонну с кнопкой
         """
-        button = ft.ElevatedButton(text="Сгенерировать пароль", on_click=self.on_click, width=200)
+        button = ft.ElevatedButton(text="Сгенерировать пароль", on_click=self.on_click, width=150)
         return ft.Column(controls=[button])
 
     def alert_error(self):
@@ -88,19 +89,17 @@ class GeneratePasswordButton(ft.UserControl):
         shuffle(password)  # Перемешиваем
         password = "".join(password)  # Делаем пароль строкой
 
-        self.save_password(password, self.name.value)
-
+        # self.save_password(password, self.name.value)
+        #
         self.password_place.value = password
         self.password_place.update()
 
-
-
-    def save_password(self, password, name):
-        data = read_toml_file()
-        print(Crypto.encrypt(password, self.user_password))
-        data["passwords"][self.user][name] = Crypto.encrypt(password, self.user_password)
-        write_toml_file(data)
-        print(data["passwords"][self.user][name])
+    # def save_password(self, password, name):
+    #     data = read_toml_file()
+    #     # print(Crypto.encrypt(password, self.user_password))
+    #     data["passwords"][self.user][name] = Crypto.encrypt(password, self.user_password)
+    #     write_toml_file(data)
+    #     # print(data["passwords"][self.user][name])
 
 
 class ShowPasswordButton(ft.UserControl):
@@ -119,7 +118,7 @@ class ShowPasswordButton(ft.UserControl):
         Служебный метод библиотеки flet (читать документацию flet)
         :return: создает в окне приложения колонну с кнопкой
         """
-        button = ft.ElevatedButton(text="Показать пароли", on_click=self.on_click, width=200)
+        button = ft.ElevatedButton(text="Показать пароли", on_click=self.on_click, width=450)
         return ft.Column(controls=[button])
 
     def on_click(self, e):
@@ -147,15 +146,10 @@ class ShowPasswordButton(ft.UserControl):
         """
         contents = []  # Созадаем список, куда кладем пароли
         passwords = read_toml_file()['passwords'][self.user]
-        print(self.user)
-        print(self.user_password)
-        print(Crypto.decrypt(passwords["test"], self.user_password))
 
         for name, password in passwords.items():
             # Заполняем окно с паролями
-            print(Crypto.decrypt(password, self.user_password))
             contents.append(PasswordCopyLine(ft.Text(value=f"{name} - {Crypto.decrypt(password, self.user_password)}")))
-        print(contents)
 
         # Создаем диалог
         dlg = ft.AlertDialog(title=ft.Text(value="Сохраненные пароли:"),
@@ -192,7 +186,7 @@ class CopyButton(ft.UserControl):
 class SaveButton(ft.UserControl):
     def __init__(self, password_place: ft.TextField, name: ft.TextField):
         super().__init__()
-        self.password = password_place.value
+        self.password_place = password_place
         self.name = name
         self.user = None
         self.user_password = None
@@ -204,7 +198,35 @@ class SaveButton(ft.UserControl):
 
     def on_click(self, e):
         data = read_toml_file()
-        print(Crypto.encrypt(self.password, self.user_password))
-        data["passwords"][self.user][self.name.value] = Crypto.encrypt(self.password, self.user_password)
+        encrypt_password = Crypto.encrypt(self.password_place.value, self.user_password)
+        # print(encrypt_password)
+        data["passwords"][self.user][self.name.value] = encrypt_password
 
         write_toml_file(data)
+
+
+class ShowParameters(ft.UserControl):
+
+    def __init__(self, check_box):
+        super().__init__()
+        self.check_box = check_box
+
+    def build(self):
+        text = "Показать параметры"
+
+        button = ft.ElevatedButton(text=text, on_click=self.on_click, width=480)
+
+        return ft.Column(controls=[button])
+
+    def on_click(self, e):
+        button = e.control
+        if not self.check_box.visible:
+            self.check_box.visible = True
+            button.text = "Скрыть параметры"
+            self.check_box.update()
+            button.update()
+        else:
+            self.check_box.visible = False
+            button.text = "Показать параметры"
+            self.check_box.update()
+            button.update()

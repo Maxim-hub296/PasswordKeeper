@@ -31,5 +31,3 @@ class RegisterDialog:
         write_toml_file(self.data)
         self.dlg.open = False
         self.other_page.update()
-
-
